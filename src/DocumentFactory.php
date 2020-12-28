@@ -6,10 +6,11 @@ namespace TheCodingMachine\Gotenberg;
 
 use GuzzleHttp\Psr7\LazyOpenStream;
 use Psr\Http\Message\StreamInterface;
-use Safe\Exceptions\FilesystemException;
+use function assert;
+use function fopen;
+use function fwrite;
 use function GuzzleHttp\Psr7\stream_for;
-use function Safe\fopen;
-use function Safe\fwrite;
+use function is_resource;
 
 final class DocumentFactory
 {
@@ -23,12 +24,10 @@ final class DocumentFactory
         return new Document($fileName, $fileStream);
     }
 
-    /**
-     * @throws FilesystemException
-     */
     public static function makeFromString(string $fileName, string $string): Document
     {
         $fileStream = fopen('php://memory', 'rb+');
+        assert(is_resource($fileStream));
         fwrite($fileStream, $string);
 
         return new Document($fileName, stream_for($fileStream));

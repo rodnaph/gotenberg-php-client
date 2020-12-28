@@ -11,10 +11,11 @@ use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Safe\Exceptions\FilesystemException;
-use function Safe\fclose;
-use function Safe\fopen;
-use function Safe\fwrite;
+use function assert;
+use function fclose;
+use function fopen;
+use function fwrite;
+use function is_resource;
 
 final class Client
 {
@@ -47,7 +48,6 @@ final class Client
      * @throws ClientException
      * @throws RequestException
      * @throws Exception
-     * @throws FilesystemException
      */
     public function store(GotenbergRequestInterface $request, string $destination): void
     {
@@ -57,6 +57,7 @@ final class Client
         $response = $this->handleResponse($this->client->sendRequest($this->makeMultipartFormDataRequest($request)));
         $fileStream = $response->getBody();
         $fp = fopen($destination, 'w');
+        assert(is_resource($fp));
         fwrite($fp, $fileStream->getContents());
         fclose($fp);
     }
